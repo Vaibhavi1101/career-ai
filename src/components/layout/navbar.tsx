@@ -30,15 +30,24 @@ export function Navbar() {
         {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center gap-12 text-lg font-medium">
 
-          <Link href="/" className="hover:text-blue-600 transition">
+          <Link
+            href="/"
+            className="relative text-zinc-900 hover:scale-105 hover:text-blue-600 transition after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+          >
             Home
           </Link>
 
-          <Link href="/explore" className="hover:text-blue-600 transition">
+          <Link
+            href="/explore"
+            className="relative text-zinc-900 hover:scale-105 hover:text-blue-600 transition after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+          >
             Explore Tests
           </Link>
 
-          <Link href="/about" className="hover:text-blue-600 transition">
+          <Link
+            href="/about"
+            className="relative text-zinc-900 hover:scale-105 hover:text-blue-600 transition after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-blue-600 after:transition-all after:duration-300 hover:after:w-full"
+          >
             About Us
           </Link>
 
@@ -63,7 +72,7 @@ export function Navbar() {
 
         {/* MOBILE MENU BUTTON */}
         <button
-          className="md:hidden"
+          className="md:hidden text-zinc-900 hover:text-blue-600 transition duration-300 hover:scale-110"
           onClick={() => setOpen(!open)}
         >
 
@@ -80,11 +89,11 @@ export function Navbar() {
       {/* MOBILE MENU */}
       {open && (
 
-        <div className="md:hidden border-t border-zinc-200 bg-white px-6 py-6 space-y-6">
+        <div className="md:hidden border-t border-zinc-200 bg-white px-6 py-8 space-y-8 shadow-lg">
 
           <Link
             href="/"
-            className="block text-lg"
+            className="block text-lg font-medium text-zinc-900 hover:text-blue-600 hover:translate-x-1 transition duration-300"
             onClick={() => setOpen(false)}
           >
             Home
@@ -92,7 +101,7 @@ export function Navbar() {
 
           <Link
             href="/explore"
-            className="block text-lg"
+            className="block text-lg font-medium text-zinc-900 hover:text-blue-600 hover:translate-x-1 transition duration-300"
             onClick={() => setOpen(false)}
           >
             Explore Tests
@@ -100,7 +109,7 @@ export function Navbar() {
 
           <Link
             href="/about"
-            className="block text-lg"
+            className="block text-lg font-medium text-zinc-900 hover:text-blue-600 hover:translate-x-1 transition duration-300"
             onClick={() => setOpen(false)}
           >
             About Us
@@ -108,11 +117,11 @@ export function Navbar() {
 
           <div className="flex flex-col gap-4 pt-4">
 
-            <button className="w-full py-3 rounded-xl border-2 border-green-500 text-green-600 font-semibold">
+            <button className="w-full py-3 rounded-xl border-2 border-green-500 text-green-600 font-semibold hover:bg-green-50 transition duration-300">
               Login
             </button>
 
-            <button className="w-full py-3 rounded-xl bg-green-500 text-white font-semibold">
+            <button className="w-full py-3 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition duration-300 shadow-lg hover:shadow-green-500/30">
               Signup
             </button>
 
