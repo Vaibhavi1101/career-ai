@@ -149,7 +149,7 @@ export default function ExplorePage() {
             {domains.map((item) => (
               <div
                 key={item.title}
-                className="bg-white rounded-3xl border border-zinc-200 p-8 shadow-md hover:bg-blue-50/40 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 hover:-translate-y-3 hover:rotate-[0.5deg] cursor-pointer"
+                className="bg-white rounded-3xl border border-zinc-200 p-8 shadow-md hover:bg-blue-50/40 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 hover:-translate-y-3 hover:rotate-[1deg] cursor-pointer"
               >
 
                 <div className="w-16 h-16 rounded-full bg-indigo-200 flex items-center justify-center">
