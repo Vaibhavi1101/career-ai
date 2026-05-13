@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/layout/navbar";
+import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import { Brain, Map, Target, Wallet,} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
