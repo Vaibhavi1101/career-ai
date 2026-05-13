@@ -6,6 +6,10 @@ import { useState } from "react";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 
+import { useRouter } from "next/navigation";
+
+import { supabase } from "@/lib/supabase";
+
 import {
   Rocket,
   Brain,
@@ -65,6 +69,61 @@ export default function SignupPage() {
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
+  };
+
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSignup = async () => {
+
+    setError("");
+
+    if (!name || !email || !password) {
+      setError("Please fill all fields.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    try {
+
+      setLoading(true);
+
+      const { error } = await supabase.auth.signUp({
+
+        email,
+        password,
+
+        options: {
+          data: {
+            full_name: name,
+          },
+        },
+
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      router.push("/dashboard");
+
+    } catch (err) {
+
+      setError("Something went wrong.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   };
 
   return (
@@ -296,10 +355,21 @@ export default function SignupPage() {
 
                 </label>
 
+                {error && (
+
+                  <p className="text-red-500 text-sm mt-2">
+
+                    {error}
+
+                  </p>
+
+                )}
+
                 {/* BUTTON */}
                 <button
                   type="submit"
-                  disabled={!accepted}
+                  onClick={handleSignup}
+                  disabled={loading || !accepted}
                   className={`w-full py-4 rounded-2xl text-white font-bold text-lg shadow-lg transition duration-300
                   ${
                     accepted
@@ -307,7 +377,7 @@ export default function SignupPage() {
                       : "bg-zinc-400 cursor-not-allowed"
                   }`}
                 >
-                  Create Account
+                  {loading ? "Creating Account..." : "Create Account"}
                 </button>
 
               </form>
