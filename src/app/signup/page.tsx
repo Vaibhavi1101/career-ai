@@ -77,7 +77,6 @@ export default function SignupPage() {
   const [error, setError] = useState("");
 
   const handleSignup = async () => {
-
     setError("");
 
     if (!name || !email || !password) {
@@ -91,11 +90,11 @@ export default function SignupPage() {
     }
 
     try {
-
       setLoading(true);
-
-      const { error } = await supabase.auth.signUp({
-
+      const {
+        data,
+        error,
+      } = await supabase.auth.signUp({
         email,
         password,
 
@@ -104,26 +103,39 @@ export default function SignupPage() {
             full_name: name,
           },
         },
-
       });
-
       if (error) {
         setError(error.message);
         return;
       }
 
+      const user = data.user;
+      if (user) {
+        const { error: profileError } =
+          await supabase
+            .from("profiles")
+            .insert([
+              {
+                id: user.id,
+                full_name: name,
+                grade: "Not Specified",
+                roadmap: "",
+                profile_image: "",
+              },
+            ]);
+        if (profileError) {
+          console.log(profileError);
+          setError(profileError.message);
+          return;
+        }
+      }
       router.push("/dashboard");
-
     } catch (err) {
-
       setError("Something went wrong.");
 
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (

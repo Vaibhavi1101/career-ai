@@ -11,9 +11,60 @@ import {
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
+import { useRouter } from "next/navigation";
+
+import { supabase } from "@/lib/supabase";
+
 export default function LoginPage() {
 
     const [showPassword, setShowPassword] = useState(false);
+
+    const router = useRouter();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleLogin = async () => {
+
+      setError("");
+
+      if (!email || !password) {
+        setError("Please fill all fields.");
+        return;
+      }
+
+      try {
+
+        setLoading(true);
+
+        const { error } = await supabase.auth.signInWithPassword({
+
+          email,
+          password,
+
+        });
+
+        if (error) {
+          setError(error.message);
+          return;
+        }
+
+        router.push("/dashboard");
+
+      } catch (err) {
+
+        setError("Something went wrong.");
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
 
   return (
     <>
@@ -88,6 +139,8 @@ export default function LoginPage() {
 
                   <input
                     type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="w-full rounded-2xl border border-zinc-300 px-5 py-4 pr-14 outline-none focus:ring-2 focus:ring-blue-500 transition text-zinc-900 placeholder:text-zinc-400"></input>
                 </div>
@@ -102,6 +155,8 @@ export default function LoginPage() {
 
                         <input
                         type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
                         className="w-full rounded-2xl border border-zinc-300 px-5 py-4 pr-14 outline-none focus:ring-2 focus:ring-blue-500 transition text-zinc-900 placeholder:text-zinc-400"
                         />
@@ -140,12 +195,24 @@ export default function LoginPage() {
 
                 </div>
 
+                {error && (
+
+                  <p className="text-red-500 text-sm">
+
+                    {error}
+
+                  </p>
+
+                )}
+
                 {/* BUTTON */}
                 <button
                   type="submit"
+                  onClick={handleLogin}
+                  disabled={loading}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-lg shadow-lg hover:scale-[1.02] transition duration-300"
                 >
-                  Login
+                  {loading ? "Logging In..." : "Login"}
                 </button>
 
               </form>

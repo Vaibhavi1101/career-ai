@@ -3,6 +3,11 @@
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { supabase } from "@/lib/supabase";
+
 import {
   Brain,
   TrendingUp,
@@ -123,6 +128,45 @@ const dashboardData = {
 
 export default function DashboardPage() {
 
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+
+      const { data } =
+        await supabase.auth.getUser();
+
+      if (!data.user) {
+        router.push("/login");
+        return;
+      }
+      const { data: profileData } =
+        await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", data.user.id)
+          .single();
+
+      setUser(data.user);
+      setProfile(profileData);
+      setLoading(false);
+    };
+    checkUser();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f7]">
+        <p className="text-zinc-600 text-lg font-medium">
+          Loading Dashboard...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -210,7 +254,7 @@ export default function DashboardPage() {
                     Welcome back,
                     <br />
 
-                    {dashboardData.user.name}
+                    {user?.user_metadata?.full_name || "User"}
 
                   </h1>
 
@@ -245,10 +289,10 @@ export default function DashboardPage() {
                 {/* PROFILE CARD */}
                 <div className="w-full max-w-sm bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-[40px] p-8 text-white shadow-2xl hover:shadow-[0_20px_50px_rgba(79,70,229,0.35)] transition-all duration-300">
 
-                  {dashboardData.user.profileImage ? (
+                  {profile?.profile_image ? (
 
                     <img
-                      src={dashboardData.user.profileImage}
+                      src={profile.profile_image}
                       alt="Profile"
                       className="w-24 h-24 rounded-full object-cover border border-white/20 shadow-lg"
                     />
@@ -256,7 +300,7 @@ export default function DashboardPage() {
                   ) : (
 
                     <img
-                      src={`https://ui-avatars.com/api/?name=${dashboardData.user.name}&background=ffffff20&color=fff&size=256`}
+                      src={`https://ui-avatars.com/api/?name=${profile?.full_name || "User"}&background=ffffff20&color=fff&size=256`}
                       alt="Avatar"
                       className="w-24 h-24 rounded-full object-cover border border-white/20 shadow-lg"
                     />
@@ -265,13 +309,19 @@ export default function DashboardPage() {
 
                   <h2 className="text-5xl font-bold mt-8">
 
-                    {dashboardData.user.name}
+                    {profile?.full_name || "User"}
 
                   </h2>
 
                   <p className="text-blue-100 text-2xl mt-4">
 
-                    {dashboardData.user.class}
+                    {profile?.grade || "Student"}
+
+                  </p>
+
+                  <p className="text-blue-200 text-lg mt-2 break-all">
+
+                    {user?.email}
 
                   </p>
 
@@ -282,7 +332,7 @@ export default function DashboardPage() {
                       <span>Roadmap Progress</span>
 
                       <span>
-                        {dashboardData.user.progress}%
+                        {profile?.roadmap || "No Roadmap Selected"}%
                       </span>
 
                     </div>
@@ -292,7 +342,7 @@ export default function DashboardPage() {
                       <div
                         className="h-full bg-white rounded-full"
                         style={{
-                          width: `${dashboardData.user.progress}%`,
+                          width: `${profile?.roadmap || "No Roadmap Selected"}%`,
                         }}
                       />
 
