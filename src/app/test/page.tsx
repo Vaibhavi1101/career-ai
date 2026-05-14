@@ -1,5 +1,6 @@
 "use client";
-
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Navbar from "@/components/layout/navbar";
@@ -77,6 +78,78 @@ export default function TestPage() {
     ((currentQuestion + 1) / questions.length) * 100;
 
   const question = questions[currentQuestion];
+
+  const router = useRouter();
+  const [answers, setAnswers] = useState<any>({});
+
+  const handleNext = () => {
+    const currentAnswer =
+      question.type === "text"
+        ? textAnswer
+        : isCustomSelected
+        ? customAnswer
+        : selectedOption;
+
+    setAnswers((prev: any) => ({
+      ...prev,
+      [currentQuestion]: currentAnswer,
+
+    }));
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedOption(null);
+      setTextAnswer("");
+      setCustomAnswer("");
+      setIsCustomSelected(false);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const { data: authData } =
+        await supabase.auth.getUser();
+      const user = authData.user;
+      if (!user) {
+        alert("Please login to save assessments.");
+        return;
+      }
+      const finalAnswer =
+        question.type === "text"
+          ? textAnswer
+          : isCustomSelected
+          ? customAnswer
+          : selectedOption;
+
+      const updatedAnswers = {
+        ...answers,
+        [currentQuestion]: finalAnswer,
+      };
+      const { error } =
+        await supabase
+          .from("assessments")
+          .insert([
+            {
+              user_id: user.id,
+              domain: "General Career Assessment",
+              answers: updatedAnswers,
+            },
+          ]);
+      if (error) {
+        console.log(error);
+        alert(error.message);
+        return;
+      }
+      router.push("/results");
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -295,19 +368,7 @@ export default function TestPage() {
             <div className="mt-14 flex items-center justify-between gap-4">
 
               <button
-                onClick={() => {
-                  if (currentQuestion > 0) {
-
-                    setCurrentQuestion(
-                      currentQuestion - 1
-                    );
-
-                    setSelectedOption(null);
-                    setTextAnswer("");
-                    setCustomAnswer("");
-                    setIsCustomSelected(false);
-                  }
-                }}
+                onClick={handlePrevious}
                 disabled={currentQuestion === 0}
                 className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-semibold transition
 
@@ -326,22 +387,11 @@ export default function TestPage() {
               </button>
 
               <button
-                onClick={() => {
-                  if (
-                    currentQuestion <
-                    questions.length - 1
-                  ) {
-
-                    setCurrentQuestion(
-                      currentQuestion + 1
-                    );
-
-                    setSelectedOption(null);
-                    setTextAnswer("");
-                    setCustomAnswer("");
-                    setIsCustomSelected(false);
-                  }
-                }}
+                onClick={
+                          currentQuestion === questions.length - 1
+                            ? handleSubmit
+                            : handleNext
+                        }
                 disabled={
                   question.type === "mcq"
                     ? isCustomSelected
@@ -365,7 +415,10 @@ export default function TestPage() {
                 `}
               >
 
-                Next
+                {currentQuestion === questions.length - 1
+                  ? "Submit Assessment"
+                  : "Next Question"
+                }
 
                 <ChevronRight className="w-5 h-5" />
 

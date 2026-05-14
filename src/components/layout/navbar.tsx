@@ -2,12 +2,26 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import Image from "next/image";
+
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
 
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } =
+        await supabase.auth.getUser();
+      setUser(data.user);
+    };
+    getUser();
+  }, []);
 
   return (
     <header className="w-full bg-white border-b border-zinc-200 sticky top-0 z-50">
@@ -60,13 +74,53 @@ export default function Navbar() {
             ☀️
           </button>
 
-          <button className="px-6 py-2 rounded-xl border-2 border-green-500 text-green-600 font-semibold hover:bg-green-50 transition">
-            Login
-          </button>
+          {user ? (
 
-          <button className="px-6 py-2 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition">
-            Signup
-          </button>
+            <>
+
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="px-6 py-2 rounded-xl border border-blue-500 text-blue-600 font-semibold hover:bg-blue-50 transition"
+              >
+                Dashboard
+              </button>
+
+              <button
+                onClick={async () => {
+
+                  await supabase.auth.signOut();
+
+                  router.push("/login");
+
+                }}
+                className="px-6 py-2 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+
+            </>
+
+          ) : (
+
+            <>
+
+              <button
+                onClick={() => router.push("/login")}
+                className="px-6 py-2 rounded-xl border-2 border-green-500 text-green-600 font-semibold hover:bg-green-50 transition"
+              >
+                Login
+              </button>
+
+              <button
+                onClick={() => router.push("/signup")}
+                className="px-6 py-2 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition"
+              >
+                Signup
+              </button>
+
+            </>
+
+          )}
 
         </div>
 
@@ -117,13 +171,73 @@ export default function Navbar() {
 
           <div className="flex flex-col gap-4 pt-4">
 
-            <button className="w-full py-3 rounded-xl border-2 border-green-500 text-green-600 font-semibold hover:bg-green-50 transition duration-300">
-              Login
-            </button>
+            {user ? (
 
-            <button className="w-full py-3 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition duration-300 shadow-lg hover:shadow-green-500/30">
-              Signup
-            </button>
+              <>
+
+                <button
+                  onClick={() => {
+
+                    setOpen(false);
+
+                    router.push("/dashboard");
+
+                  }}
+                  className="w-full py-3 rounded-xl border border-blue-500 text-blue-600 font-semibold"
+                >
+                  Dashboard
+                </button>
+
+                <button
+                  onClick={async () => {
+
+                    await supabase.auth.signOut();
+
+                    setOpen(false);
+
+                    router.push("/login");
+
+                  }}
+                  className="w-full py-3 rounded-xl bg-red-500 text-white font-semibold"
+                >
+                  Logout
+                </button>
+
+              </>
+
+            ) : (
+
+              <>
+
+                <button
+                  onClick={() => {
+
+                    setOpen(false);
+
+                    router.push("/login");
+
+                  }}
+                  className="w-full py-3 rounded-xl border-2 border-green-500 text-green-600 font-semibold"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={() => {
+
+                    setOpen(false);
+
+                    router.push("/signup");
+
+                  }}
+                  className="w-full py-3 rounded-xl bg-green-500 text-white font-semibold"
+                >
+                  Signup
+                </button>
+
+              </>
+
+            )}
 
           </div>
 
