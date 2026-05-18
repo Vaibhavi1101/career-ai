@@ -2,6 +2,7 @@
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
@@ -79,6 +80,11 @@ export default function TestPage() {
 
   const question = questions[currentQuestion];
 
+  const searchParams = useSearchParams();
+
+  const testType =
+  searchParams.get("type");
+
   const router = useRouter();
   const [answers, setAnswers] = useState<any>({});
 
@@ -136,7 +142,7 @@ export default function TestPage() {
           .insert([
             {
               user_id: user.id,
-              domain: "General Career Assessment",
+              domain: testType || "General Career Assessment",
               answers: updatedAnswers,
             },
           ]);
@@ -168,12 +174,12 @@ export default function TestPage() {
 
                 <Brain className="w-5 h-5" />
 
-                <span>CareerAI Assessment</span>
+                <span>{testType || "CareerAI Assessment"}</span>
 
               </div>
 
               <h1 className="text-4xl md:text-5xl font-extrabold text-zinc-900 mt-4 leading-tight">
-                Discover Your Ideal Career Path
+                Discover Your Strengths & Career Fit
               </h1>
 
             </div>

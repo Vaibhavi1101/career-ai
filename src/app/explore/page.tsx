@@ -1,5 +1,7 @@
+"use client";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import { useRouter } from "next/navigation";
 
 import {
   Brain,
@@ -85,6 +87,8 @@ const tests = [
 ];
 
 export default function ExplorePage() {
+  const router = useRouter();
+
   return (
     <main className="min-h-screen bg-[#f5f5f7]">
 
@@ -116,10 +120,6 @@ export default function ExplorePage() {
               Discover career domains, AI-powered assessments,
               and personalized career guidance built for students.
             </p>
-
-            <button className="mt-10 px-10 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xl font-semibold shadow-xl hover:scale-105 transition duration-300 hover:brightness-110 hover:shadow-black/30">
-              Explore Careers →
-            </button>
 
           </div>
 
@@ -197,11 +197,18 @@ export default function ExplorePage() {
             {tests.map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl bg-[#ececf4] p-8 hover:shadow-xl transition duration-300 hover:-translate-y-2"
+
+                onClick={() =>
+                  router.push(
+                    `/test?type=${encodeURIComponent(item.title)}`
+                  )
+                }
+
+                className="rounded-3xl bg-[#ececf4] p-8 hover:shadow-xl transition duration-300 hover:-translate-y-2 cursor-pointer"
               >
 
                 <div className="w-16 h-16 rounded-full bg-indigo-200 flex items-center justify-center mb-6">
-                    <item.icon className="w-8 h-8 text-indigo-700" />
+                  <item.icon className="w-8 h-8 text-indigo-700" />
                 </div>
 
                 <h3 className="text-2xl font-bold text-black">
@@ -211,6 +218,11 @@ export default function ExplorePage() {
                 <p className="text-zinc-700 text-lg mt-4 leading-relaxed">
                   {item.desc}
                 </p>
+
+                <button className="mt-8 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-[#7C6CF6] to-[#9A6BFF] text-white font-semibold shadow-md hover:scale-[1.03] hover:shadow-lg transition duration-300">
+                  Start Assessment
+                  <span className="text-lg">→</span>
+                </button>
 
               </div>
             ))}
@@ -279,7 +291,7 @@ export default function ExplorePage() {
             Take your first AI-powered career assessment now.
             </p>
 
-            <button className="mt-10 px-6 py-4 rounded-2xl bg-white text-black text-xl font-semibold shadow-lg hover:scale-105 transition duration-300">
+            <button className="mt-10 px-6 py-4 rounded-2xl bg-white text-black text-xl font-semibold shadow-lg hover:scale-105 transition duration-300 hover:brightness-110 hover:shadow-black/30">
             Start Free Test →
             </button>
 
