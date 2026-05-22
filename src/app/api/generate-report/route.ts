@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     const { answers, domain } = body;
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
     });
 
     const prompt = `
@@ -79,6 +79,7 @@ export async function POST(req: Request) {
 
     const response =
       await result.response.text();
+      console.log(response);
 
     return Response.json({
       result: response,
