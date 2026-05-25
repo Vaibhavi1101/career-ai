@@ -33,6 +33,8 @@ export default function ResultsPage() {
   const [aiReport, setAiReport] =
     useState<any>(null);
 
+  const [generated, setGenerated] =
+    useState(false);
 
   useEffect(() => {
 
@@ -42,6 +44,8 @@ export default function ResultsPage() {
         await supabase.auth.getUser();
 
       const user = authData.user;
+
+      if (generated) return;
 
       if (!user) {
 
@@ -104,6 +108,27 @@ export default function ResultsPage() {
         const parsed = JSON.parse(cleaned);
 
         setAiReport(parsed);
+
+        const { data: existingReport } =
+          await supabase
+            .from("reports")
+            .select("*")
+            .eq("assessment_id", data.id)
+            .single();
+
+        if (!existingReport) {
+          await supabase
+            .from("reports")
+            .insert([
+              {
+                user_id: user.id,
+                assessment_id: data.id,
+                report: parsed,
+              },
+            ]);
+        }
+
+        setGenerated(true);
 
       } catch (err) {
 
