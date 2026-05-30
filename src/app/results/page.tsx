@@ -40,6 +40,13 @@ export default function ResultsPage() {
 
     const fetchAssessment = async () => {
 
+      if (generated) return;
+
+      const pendingAssessment =
+        localStorage.getItem(
+          "pendingAssessment"
+        );
+
       const { data: authData } =
         await supabase.auth.getUser();
 
@@ -53,6 +60,86 @@ export default function ResultsPage() {
 
         return;
 
+      }
+
+      if (pendingAssessment) {
+
+        const parsedPending =
+          JSON.parse(
+            pendingAssessment
+          );
+
+        const response =
+          await fetch(
+            "/api/generate-report",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+              body: JSON.stringify({
+
+                answers:
+                  parsedPending.answers,
+
+                domain:
+                  parsedPending.domain,
+
+                traits:
+                  parsedPending.traits,
+
+                testType:
+                  parsedPending.testType,
+
+              }),
+            }
+          );
+
+        const aiData =
+          await response.json();
+
+        setAiReport(aiData);
+
+        setAssessment({
+        domain:
+          parsedPending.domain,
+
+        traits:
+          parsedPending.traits,
+
+        created_at:
+          new Date(),
+      });
+
+        await supabase
+          .from("assessments")
+          .insert([
+            {
+              user_id: user.id,
+
+              domain:
+                parsedPending.domain,
+
+              test_type:
+                parsedPending.testType,
+
+              answers:
+                parsedPending.answers,
+
+              traits:
+                parsedPending.traits,
+            },
+          ]);
+
+        localStorage.removeItem(
+          "pendingAssessment"
+        );
+
+        setLoading(false);
+        setGenerated(true);
+        return;
       }
 
       const { data, error } =
@@ -90,6 +177,8 @@ export default function ResultsPage() {
           body: JSON.stringify({
             answers: data.answers,
             domain: data.domain,
+            traits: data.traits,
+            testType: data.test_type,
           }),
         }
       );
@@ -99,15 +188,7 @@ export default function ResultsPage() {
 
       try {
 
-        const cleaned =
-          reportData.result
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .trim();
-
-        const parsed = JSON.parse(cleaned);
-
-        setAiReport(parsed);
+        setAiReport(reportData);
 
         const { data: existingReport } =
           await supabase
@@ -117,13 +198,16 @@ export default function ResultsPage() {
             .single();
 
         if (!existingReport) {
+
           await supabase
             .from("reports")
             .insert([
               {
                 user_id: user.id,
+
                 assessment_id: data.id,
-                report: parsed,
+
+                report: reportData,
               },
             ]);
         }
@@ -218,7 +302,6 @@ export default function ResultsPage() {
 
           </div>
 
-
           {/* AI SUMMARY */}
           <div className="mt-16 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-8 md:p-12">
 
@@ -233,12 +316,72 @@ export default function ResultsPage() {
 
             <p className="text-zinc-700 text-xl leading-relaxed mt-8">
 
-              {aiReport?.summary}
+              {aiReport?.personalitySummary}
 
             </p>
 
           </div>
 
+          {/* REPORT METADATA */}
+          <div className="grid md:grid-cols-3 gap-6 mt-14">
+
+            <div className="bg-white rounded-3xl border border-zinc-200 shadow-lg p-6">
+
+              <p className="text-zinc-500 text-sm">
+                Assessment Type
+              </p>
+
+              <h3 className="text-2xl font-bold text-zinc-900 mt-3">
+
+                {assessment?.test_type || "Career Assessment"}
+
+              </h3>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-zinc-200 shadow-lg p-6">
+
+              <p className="text-zinc-500 text-sm">
+                Traits Detected
+              </p>
+
+              <h3 className="text-2xl font-bold text-zinc-900 mt-3">
+                {assessment?.traits?.length || 0}
+              </h3>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-zinc-200 shadow-lg p-6">
+
+              <p className="text-zinc-500 text-sm">
+                Report Generated
+              </p>
+
+              <h3 className="text-2xl font-bold text-zinc-900 mt-3">
+                AI Powered
+              </h3>
+            </div>
+          </div>
+
+          {/* DOMINANT TRAITS */}
+          <div className="grid md:grid-cols-3 gap-6 mt-14">
+
+            {assessment?.traits
+              ?.slice(0, 6)
+              ?.map((trait: string) => (
+
+                <div
+                  key={trait}
+                  className="bg-white rounded-3xl border border-zinc-200 shadow-lg p-6 text-center"
+                >
+                  <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-100 flex items-center justify-center">
+                    <Brain className="w-7 h-7 text-blue-600" />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-zinc-900 mt-5 capitalize">
+                    {trait.replace("_", " ")}
+                  </h3>
+                </div>
+              ))}
+          </div>
 
           {/* CAREERS */}
           <div className="mt-16">
@@ -261,7 +404,7 @@ export default function ResultsPage() {
 
             <div className="grid lg:grid-cols-3 gap-8 mt-10">
 
-              {aiReport?.careers?.map(
+              {aiReport?.careerMatches?.map(
                 (
                   career: string,
                   index: number
@@ -305,45 +448,113 @@ export default function ResultsPage() {
 
 
           {/* STRENGTHS */}
-          <div className="mt-16 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-8 md:p-12">
+          <div className="mt-16">
 
-            <div className="flex items-center gap-3 text-emerald-600 font-semibold">
+            <div className="flex items-center gap-3 text-blue-600 font-semibold">
 
-              <BadgeCheck className="w-5 h-5" />
+              <Target className="w-5 h-5" />
 
-              <span>Key Strengths</span>
+              <span>Strengths</span>
 
             </div>
 
+            <h2 className="text-4xl font-bold text-zinc-900 mt-5 mb-10">
+
+              Your Core Strengths
+
+            </h2>
+
+            <div className="grid md:grid-cols-4 gap-6">
+
+              {aiReport?.strengths?.length ? (
+
+                aiReport.strengths.map(
+                  (
+                    strength: string,
+                    index: number
+                  ) => (
+
+                    <div
+                      key={index}
+                      className="bg-green-50 rounded-[32px] border border-green-300 shadow-lg p-7"
+                    >
+                      <div className="w-10 h-10 rounded-3xl bg-blue-100 flex items-center justify-center">
+                        <Brain className="w-5 h-5 text-blue-600" />
+                      </div>
+
+                      <div className="mt-1">
+
+                        <h3 className="text-2xl font-bold text-zinc-900">
+
+                          {strength}
+
+                        </h3>
+
+                        <p className="text-zinc-500 mt-2 leading-relaxed">
+                          Core strength identified through your behavioral
+                          and career assessment patterns.
+                        </p>
+                      </div>
+                    </div>
+                  )
+                )
+              ) : (
+
+                <div className="bg-white rounded-3xl p-8 shadow-lg">
+
+                  <p className="text-zinc-500">
+                    No strengths generated yet.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* GROWTH AREAS */}
+          <div className="mt-16 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-8 md:p-12">
+
+            <div className="flex items-center gap-3 text-rose-600 font-semibold">
+              <Target className="w-5 h-5" />
+              <span>Growth Areas</span>
+            </div>
 
             <div className="grid md:grid-cols-2 gap-6 mt-10">
-
-              {aiReport?.strengths?.map(
+              {aiReport?.growthAreas?.map(
                 (
-                  strength: string,
+                  area: string,
                   index: number
                 ) => (
 
                   <div
                     key={index}
-                    className="flex items-center gap-4 bg-emerald-50 rounded-2xl px-6 py-5"
+                    className="flex items-start gap-4 bg-rose-50 rounded-2xl px-6 py-5"
                   >
-
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                    <CheckCircle2 className="w-6 h-6 text-rose-600 mt-1" />
 
                     <span className="text-zinc-800 font-medium text-lg">
-
-                      {strength}
+                      {area}
 
                     </span>
-
                   </div>
-
                 )
               )}
+            </div>
+          </div>
 
+
+          {/* WORK STYLE */}
+          <div className="mt-16 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-8 md:p-12">
+
+            <div className="flex items-center gap-3 text-cyan-600 font-semibold">
+
+              <Sparkles className="w-5 h-5" />
+              <span>Ideal Work Style</span>
             </div>
 
+            <p className="text-zinc-700 text-xl leading-relaxed mt-8">
+              {aiReport?.workStyle}
+
+            </p>
           </div>
 
 

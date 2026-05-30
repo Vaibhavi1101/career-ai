@@ -65,25 +65,28 @@ const domains = [
 
 const tests = [
   {
+    id: "interest",
     title: "Interest Test",
     desc: "Discover what genuinely interests you.",
     icon: Brain,
   },
   {
+    id: "personality",
     title: "Personality Test",
     desc: "Understand how you think and work.",
     icon: Sparkles,
   },
   {
+    id: "skills",
     title: "Skill Assessment",
     desc: "Analyze your strengths and abilities.",
     icon: BadgeCheck,
   },
-  {
-    title: "AI Career Match",
-    desc: "Get AI-powered career recommendations.",
-    icon: Target,
-  },
+  // {
+  //   title: "AI Career Match",
+  //   desc: "Get AI-powered career recommendations.",
+  //   icon: Target,
+  // },
 ];
 
 export default function ExplorePage() {
@@ -192,7 +195,7 @@ export default function ExplorePage() {
 
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-20">
 
             {tests.map((item) => (
               <div
@@ -200,7 +203,7 @@ export default function ExplorePage() {
 
                 onClick={() =>
                   router.push(
-                    `/test?type=${encodeURIComponent(item.title)}`
+                    `/test?type=${encodeURIComponent(item.id)}`
                   )
                 }
 

@@ -52,7 +52,17 @@ export default function LoginPage() {
           return;
         }
 
-        router.push("/dashboard");
+        const pendingAssessment =
+          localStorage.getItem(
+            "pendingAssessment"
+          );
+
+        if (pendingAssessment) {
+          router.push("/results");
+
+        } else {
+          router.push("/dashboard");
+        }
 
       } catch (err) {
 

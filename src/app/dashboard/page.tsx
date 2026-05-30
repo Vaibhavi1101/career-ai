@@ -42,6 +42,9 @@ export default function DashboardPage() {
   const [reports, setReports] =
     useState<any[]>([]);
 
+  const [assessments, setAssessments] =
+    useState<any[]>([]);
+
 
   useEffect(() => {
 
@@ -81,6 +84,16 @@ export default function DashboardPage() {
           });
 
       setReports(reportsData || []);
+
+      const { data: assessmentsData } =
+        await supabase
+          .from("assessments")
+          .select("*")
+          .eq("user_id", data.user.id);
+
+      setAssessments(
+        assessmentsData || []
+      );
 
       setLoading(false);
 
@@ -233,7 +246,7 @@ export default function DashboardPage() {
                     </p>
 
                     <h2 className="text-3xl font-bold mt-4">
-                      {latestReport?.careers?.[0] || "No Report Yet"}
+                      {latestReport?.careerMatches?.[0] || "No Report Yet"}
                     </h2>
 
 
@@ -485,16 +498,85 @@ export default function DashboardPage() {
                           {step}
 
                         </p>
-
                       </div>
-
                     )
                   )}
-
                 </div>
-
               </div>
 
+              {/* TRAITS */}
+              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
+
+                <div className="flex items-center gap-3 text-blue-600 font-semibold">
+                  <Brain className="w-5 h-5" />
+
+                  <span>Primary Traits</span>
+                </div>
+
+                <div className="flex flex-wrap gap-4 mt-10">
+
+                  {reports[0]?.report?.strengths
+                    ?.slice(0, 8)
+                    ?.map((trait: string) => (
+
+                      <div
+                        key={trait}
+                        className="px-5 py-3 rounded-full bg-blue-50 text-blue-700 font-medium capitalize"
+                      >
+                        {trait.replace("_", " ")}
+
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* ASSESSMENT STATUS */}
+              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
+
+                <div className="flex items-center gap-3 text-emerald-600 font-semibold">
+                  <ClipboardList className="w-5 h-5" />
+
+                  <span>Assessment Progress</span>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6 mt-10">
+                  {[
+                    "personality",
+                    "interest",
+                    "skills",
+                  ].map((item) => {
+
+                    const completed =
+                      assessments.some(
+                        (a) =>
+                          a.test_type === item
+                      );
+
+                    return (
+                      <div
+                        key={item}
+                        className={`rounded-3xl border p-6 ${
+                          completed
+                            ? "bg-emerald-50 border-emerald-200"
+                            : "bg-zinc-50 border-zinc-200"
+                        }`}
+                      >
+                        <h3 className="text-xl font-bold capitalize">
+                          {item}
+                        </h3>
+
+                        <p className="mt-3 font-medium">
+                          {completed
+                            ? "Completed"
+                            : "Not Taken"}
+
+                        </p>
+                      </div>
+
+                    );
+                  })}
+                </div>
+              </div>
 
               {/* HISTORY */}
               <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
