@@ -1,6 +1,6 @@
 export const personalityTest = {
 
-  id: "personality",
+  id: "Personality",
 
   title: "Personality Assessment",
 

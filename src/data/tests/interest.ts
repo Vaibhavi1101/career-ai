@@ -1,6 +1,6 @@
 export const interestTest = {
 
-  id: "interest",
+  id: "Interest",
 
   title: "Career Interest Assessment",
 

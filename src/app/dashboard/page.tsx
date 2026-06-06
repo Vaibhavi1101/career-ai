@@ -10,6 +10,10 @@ import { useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase";
 
+import { User, Compass, Activity } from "lucide-react";
+
+import { getTopItems } from "@/lib/dashboard-utils";
+
 import {
   Brain,
   TrendingUp,
@@ -123,6 +127,49 @@ export default function DashboardPage() {
 
   const latestReport = reports[0]?.report;
 
+  const allCareers = reports.flatMap(
+    (r) => r.report?.careerMatches || []
+  );
+
+  const allStrengths = reports.flatMap(
+    (r) => r.report?.strengths || []
+  );
+
+  const topCareers = getTopItems(
+    allCareers,
+    4
+  );
+
+  const topStrengths = getTopItems(
+    allStrengths,
+    6
+  );
+
+  const domainsExplored =
+    new Set(
+      assessments.map(
+        (a) => a.domain
+      )
+    ).size;
+
+    const profileFields = [
+                profile?.full_name,
+                profile?.grade,
+                profile?.stream,
+                profile?.career_goal,
+                profile?.selected_career,
+                profile?.bio,
+              ];
+
+              const completedFields =
+                profileFields.filter(Boolean).length;
+
+              const completion =
+                Math.round(
+                  (completedFields /
+                    profileFields.length) *
+                    100
+                );
 
   return (
 
@@ -174,9 +221,9 @@ export default function DashboardPage() {
 
               <button className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-zinc-600 hover:bg-zinc-100 transition">
 
-                <Route className="w-5 h-5" />
+                <User className="w-5 h-5" />
 
-                Roadmaps
+                Profile
 
               </button>
 
@@ -201,30 +248,23 @@ export default function DashboardPage() {
 
 
               {/* HERO */}
-              <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 rounded-[40px] p-10 md:p-14 text-white shadow-2xl">
+              <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 rounded-[40px] p-8 md:p-10 text-white shadow-2xl">
 
                 <div className="flex flex-col lg:flex-row items-start justify-between gap-10">
-
 
                   <div>
 
                     <div className="inline-flex items-center gap-3 bg-white/10 border border-white/20 backdrop-blur-md px-5 py-3 rounded-full text-blue-100 font-semibold">
-
                       <Sparkles className="w-5 h-5" />
-
                       AI Career Dashboard
-
                     </div>
 
 
-                    <h1 className="text-5xl md:text-6xl font-extrabold mt-8 leading-tight">
-
+                    <h1 className="text-5xl md:text-5xl font-extrabold mt-8 leading-tight">
                       Welcome back,
 
                       <br />
-
                       {profile?.full_name || "Student"}
-
                     </h1>
 
 
@@ -235,12 +275,10 @@ export default function DashboardPage() {
                       future roadmap.
 
                     </p>
-
                   </div>
 
 
-                  <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-3xl p-8 min-w-[280px]">
-
+                  <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-3xl p-8 min-w-[220px]">
                     <p className="text-blue-100 font-medium">
                       Top Career Match
                     </p>
@@ -259,13 +297,53 @@ export default function DashboardPage() {
                         Take New Assessment
                         <ChevronRight className="w-4 h-4" />
                       </Link>
-
                     </div>
-
                   </div>
+                </div>
+              </div>
 
+
+
+              {/* PROFILE SNAPSHOT */}
+              <div className="mt-10 bg-white rounded-[40px] p-8 shadow-xl border border-zinc-200">
+
+                <div className="flex items-center gap-3 text-blue-600 font-semibold mb-8">
+
+                  <User className="w-5 h-5" />
+
+                  Profile Snapshot
                 </div>
 
+                <div className="grid md:grid-cols-4 gap-6">
+
+                  <div>
+                    <p className="text-zinc-500 text-sm">Name</p>
+                    <h3 className="text-xl font-bold mt-1">
+                      {profile?.full_name || "Not Set"}
+                    </h3>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500 text-sm">Grade</p>
+                    <h3 className="text-xl font-bold mt-1">
+                      {profile?.grade || "Not Set"}
+                    </h3>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500 text-sm">Stream</p>
+                    <h3 className="text-xl font-bold mt-1">
+                      {profile?.stream || "Not Set"}
+                    </h3>
+                  </div>
+
+                  <div>
+                    <p className="text-zinc-500 text-sm">Career Goal</p>
+                    <h3 className="text-xl font-bold mt-1">
+                      {profile?.career_goal || "Not Set"}
+                    </h3>
+                  </div>
+                </div>
               </div>
 
 
@@ -275,28 +353,23 @@ export default function DashboardPage() {
                 <div className="bg-white rounded-3xl p-8 border border-zinc-200 shadow-lg">
 
                   <div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center">
-
                     <Brain className="w-7 h-7 text-blue-600" />
-
                   </div>
 
                   <h3 className="text-zinc-500 font-medium mt-6">
-                    Reports Generated
+                    Assessments Taken
                   </h3>
 
                   <p className="text-4xl font-bold text-zinc-900 mt-3">
                     {reports.length}
                   </p>
-
                 </div>
 
 
                 <div className="bg-white rounded-3xl p-8 border border-zinc-200 shadow-lg">
 
                   <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center">
-
                     <Target className="w-7 h-7 text-emerald-600" />
-
                   </div>
 
                   <h3 className="text-zinc-500 font-medium mt-6">
@@ -306,12 +379,10 @@ export default function DashboardPage() {
                   <p className="text-2xl font-bold text-zinc-900 mt-3 leading-snug">
                     {latestReport?.careers?.[0] || "No Data"}
                   </p>
-
                 </div>
 
 
                 <div className="bg-white rounded-3xl p-8 border border-zinc-200 shadow-lg">
-
                   <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center">
 
                     <Award className="w-7 h-7 text-purple-600" />
@@ -325,16 +396,13 @@ export default function DashboardPage() {
                   <p className="text-4xl font-bold text-zinc-900 mt-3">
                     {latestReport?.strengths?.length || 0}
                   </p>
-
                 </div>
 
 
                 <div className="bg-white rounded-3xl p-8 border border-zinc-200 shadow-lg">
 
                   <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center">
-
                     <TrendingUp className="w-7 h-7 text-orange-600" />
-
                   </div>
 
                   <h3 className="text-zinc-500 font-medium mt-6">
@@ -344,297 +412,258 @@ export default function DashboardPage() {
                   <p className="text-4xl font-bold text-zinc-900 mt-3">
                     {latestReport?.roadmap?.length || 0}
                   </p>
-
                 </div>
-
               </div>
 
 
-              {/* AI SUMMARY */}
-              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
+              {/* QUICK ACTIONS */}
+              <div className="mt-12">
 
-                <div className="flex items-center gap-3 text-indigo-600 font-semibold">
-
+                <div className="flex items-center gap-3 text-indigo-600 font-semibold mb-6">
                   <Sparkles className="w-5 h-5" />
-
-                  <span>AI Career Insight</span>
-
+                  Quick Actions
                 </div>
 
+                <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+                  <Link
+                    href="/assessments"
+                    className="bg-white rounded-3xl p-6 shadow-lg border border-zinc-200 hover:shadow-xl transition"
+                  >
+                    <Brain className="w-8 h-8 text-blue-600 mb-4" />
+                    <h3 className="font-bold text-lg">
+                      Take Assessment
+                    </h3>
+                    <p className="text-zinc-500 mt-2">
+                      Discover new career insights
+                    </p>
+                  </Link>
 
-                <p className="text-zinc-700 text-xl leading-relaxed mt-8">
+                  <Link
+                    href="/assessments"
+                    className="bg-white rounded-3xl p-6 shadow-lg border border-zinc-200 hover:shadow-xl transition"
+                  >
+                    <ClipboardList className="w-8 h-8 text-emerald-600 mb-4" />
+                    <h3 className="font-bold text-lg">
+                      Assessment History
+                    </h3>
+                    <p className="text-zinc-500 mt-2">
+                      Review previous assessments
+                    </p>
+                  </Link>
 
-                  {latestReport?.summary ||
-                    "Complete an assessment to unlock AI-powered career insights."}
+                  <Link
+                    href="/profile"
+                    className="bg-white rounded-3xl p-6 shadow-lg border border-zinc-200 hover:shadow-xl transition"
+                  >
+                    <User className="w-8 h-8 text-purple-600 mb-4" />
+                    <h3 className="font-bold text-lg">
+                      Update Profile
+                    </h3>
+                    <p className="text-zinc-500 mt-2">
+                      Improve personalization
+                    </p>
+                  </Link>
 
-                </p>
+                  <div className="bg-white rounded-3xl p-6 shadow-lg border border-zinc-200">
+                    <Target className="w-8 h-8 text-orange-600 mb-4" />
+                    <h3 className="font-bold text-lg">
+                      Career Journey
+                    </h3>
 
+                    <p className="text-zinc-500 mt-2">
+                      {profile?.selected_career
+                        ? profile.selected_career
+                        : "No career selected"}
+                    </p>
+                  </div>
+                </div>
               </div>
 
 
-              {/* CAREERS */}
-              <div className="mt-14">
+              {/*Career Intelligence and Career DNA*/}
+              <div className="grid lg:grid-cols-2 gap-8 mt-14">
 
-                <div className="flex items-center gap-3 text-blue-600 font-semibold">
+                <div className="bg-white rounded-[40px] p-10 shadow-xl border border-zinc-200">
 
-                  <Target className="w-5 h-5" />
+                  <div className="flex items-center gap-3 text-indigo-600 font-semibold">
 
-                  <span>Recommended Careers</span>
+                    <Compass className="w-5 h-5" />
 
-                </div>
+                    Career Intelligence
 
+                  </div>
 
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8 mt-10">
+                  <div className="space-y-4 mt-8">
 
-                  {latestReport?.careers?.map(
-                    (
-                      career: string,
-                      index: number
-                    ) => (
+                    {topCareers.map((career) => (
 
                       <div
-                        key={index}
-                        className="bg-white rounded-[32px] border border-zinc-200 shadow-lg p-8 hover:shadow-2xl transition duration-300"
+                        key={career}
+                        className="bg-indigo-50 rounded-2xl px-5 py-4 font-medium text-zinc-800"
                       >
-
-                        <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center">
-
-                          <TrendingUp className="w-8 h-8 text-blue-600" />
-
-                        </div>
-
-
-                        <h3 className="text-2xl font-bold text-zinc-900 mt-8">
-
-                          {career}
-
-                        </h3>
-
+                        {career}
                       </div>
-
-                    )
-                  )}
-
+                    ))}
+                  </div>
                 </div>
 
-              </div>
+                <div className="bg-white rounded-[40px] p-10 shadow-xl border border-zinc-200">
 
+                  <div className="flex items-center gap-3 text-emerald-600 font-semibold">
+                    <Brain className="w-5 h-5" />
+                    Career DNA
+                  </div>
 
-              {/* STRENGTHS */}
-              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
-
-                <div className="flex items-center gap-3 text-emerald-600 font-semibold">
-
-                  <Award className="w-5 h-5" />
-
-                  <span>Identified Strengths</span>
-
-                </div>
-
-
-                <div className="grid md:grid-cols-2 gap-6 mt-10">
-
-                  {latestReport?.strengths?.map(
-                    (
-                      strength: string,
-                      index: number
-                    ) => (
-
-                      <div
-                        key={index}
-                        className="flex items-center gap-4 bg-emerald-50 rounded-2xl px-6 py-5"
-                      >
-
-                        <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-
-                        <span className="text-zinc-800 font-medium text-lg">
-                          {strength}
-                        </span>
-
-                      </div>
-
-                    )
-                  )}
-
-                </div>
-
-              </div>
-
-
-              {/* ROADMAP */}
-              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
-
-                <div className="flex items-center gap-3 text-purple-600 font-semibold">
-
-                  <Route className="w-5 h-5" />
-
-                  <span>Personalized Roadmap</span>
-
-                </div>
-
-
-                <div className="space-y-6 mt-10">
-
-                  {latestReport?.roadmap?.map(
-                    (
-                      step: string,
-                      index: number
-                    ) => (
-
-                      <div
-                        key={index}
-                        className="flex items-start gap-5 bg-purple-50 rounded-2xl px-6 py-5"
-                      >
-
-                        <div className="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold shrink-0">
-
-                          {index + 1}
-
-                        </div>
-
-
-                        <p className="text-zinc-700 text-lg leading-relaxed">
-
-                          {step}
-
-                        </p>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-
-              {/* TRAITS */}
-              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
-
-                <div className="flex items-center gap-3 text-blue-600 font-semibold">
-                  <Brain className="w-5 h-5" />
-
-                  <span>Primary Traits</span>
-                </div>
-
-                <div className="flex flex-wrap gap-4 mt-10">
-
-                  {reports[0]?.report?.strengths
-                    ?.slice(0, 8)
-                    ?.map((trait: string) => (
+                  <div className="flex flex-wrap gap-4 mt-8">
+                    {topStrengths.map((trait) => (
 
                       <div
                         key={trait}
-                        className="px-5 py-3 rounded-full bg-blue-50 text-blue-700 font-medium capitalize"
+                        className="px-5 py-3 rounded-full bg-emerald-50 text-emerald-700 font-medium"
                       >
-                        {trait.replace("_", " ")}
+                        {trait}
+                      </div>
 
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+
+              {/*Current Journey*/}
+              <div className="mt-14 bg-white rounded-[40px] p-10 shadow-xl border border-zinc-200">
+
+                <div className="flex items-center gap-3 text-purple-600 font-semibold">
+                  <Target className="w-5 h-5" />
+                  Current Journey
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8 mt-8">
+                  <div>
+
+                    <p className="text-zinc-500">
+                      Selected Career
+                    </p>
+
+                    <h3 className="text-3xl font-bold mt-2">
+
+                      {profile?.selected_career ||
+                        "Not Selected Yet"}
+
+                    </h3>
+
+                  </div>
+
+                  <div>
+
+                    <p className="text-zinc-500">
+                      Roadmap
+                    </p>
+
+                    <h3 className="text-3xl font-bold mt-2">
+
+                      {profile?.roadmap ||
+                        "Not Started"}
+
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+
+              {/*AI Profile*/}
+              <div className="mt-14 bg-white rounded-[40px] p-10 shadow-xl border border-zinc-200">
+
+                <div className="flex items-center gap-3 text-blue-600 font-semibold">
+                  <Sparkles className="w-5 h-5" />
+                  Overall Career Profile
+                </div>
+
+                <p className="text-xl text-zinc-700 leading-relaxed mt-8">
+                  {latestReport?.personalitySummary ||
+                    "Complete assessments to build your AI-generated career profile."}
+                </p>
+              </div>
+
+              
+              
+
+              
+              {/* PROFILE COMPLETION */}
+              <div className="mt-14 bg-white rounded-[40px] p-10 shadow-xl border border-zinc-200">
+
+                <div className="flex items-center gap-3 text-emerald-600 font-semibold">
+                  <TrendingUp className="w-5 h-5" />
+                  Profile Completion
+                </div>
+
+                <div className="mt-8">
+
+                  <div className="flex justify-between mb-3">
+
+                    <span className="font-medium">
+                      Profile Strength
+                    </span>
+
+                    <span className="font-bold">
+                      {completion}%
+                    </span>
+
+                  </div>
+
+                  <div className="w-full h-4 bg-zinc-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-600 to-purple-600"
+                      style={{
+                        width: `${completion}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+
+              {/*Activity Feed*/}
+              <div className="mt-14 bg-white rounded-[40px] p-10 shadow-xl border border-zinc-200">
+
+                <div className="flex items-center gap-3 text-orange-600 font-semibold">
+                  <Activity className="w-5 h-5" />
+                  Recent Activity
+                </div>
+
+                <div className="space-y-4 mt-8">
+                  {assessments
+                    .slice(0, 5)
+                    .map((assessment) => (
+
+                      <div
+                        key={assessment.id}
+                        className="flex items-center justify-between rounded-2xl bg-zinc-50 px-5 py-4"
+                      >
+                        <div>
+
+                          <h2 className="font-semibold text-blue-900 text-xl">
+                            {assessment.test_type}
+                          </h2>
+
+                          <p className="text-sm text-zinc-500">
+
+                            {new Date(
+                              assessment.created_at
+                            ).toLocaleDateString()}
+
+                          </p>
+
+                        </div>
+
+                        <span className="text-emerald-600 font-medium">
+                          Completed
+                        </span>
                       </div>
                     ))}
                 </div>
               </div>
 
-              {/* ASSESSMENT STATUS */}
-              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
-
-                <div className="flex items-center gap-3 text-emerald-600 font-semibold">
-                  <ClipboardList className="w-5 h-5" />
-
-                  <span>Assessment Progress</span>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-6 mt-10">
-                  {[
-                    "personality",
-                    "interest",
-                    "skills",
-                  ].map((item) => {
-
-                    const completed =
-                      assessments.some(
-                        (a) =>
-                          a.test_type === item
-                      );
-
-                    return (
-                      <div
-                        key={item}
-                        className={`rounded-3xl border p-6 ${
-                          completed
-                            ? "bg-emerald-50 border-emerald-200"
-                            : "bg-zinc-50 border-zinc-200"
-                        }`}
-                      >
-                        <h3 className="text-xl font-bold capitalize">
-                          {item}
-                        </h3>
-
-                        <p className="mt-3 font-medium">
-                          {completed
-                            ? "Completed"
-                            : "Not Taken"}
-
-                        </p>
-                      </div>
-
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* HISTORY */}
-              <div className="mt-14 bg-white rounded-[40px] border border-zinc-200 shadow-xl p-10 md:p-12">
-
-                <div className="flex items-center gap-3 text-orange-600 font-semibold">
-
-                  <ClipboardList className="w-5 h-5" />
-
-                  <span>Assessment History</span>
-
-                </div>
-
-                <div className="space-y-5 mt-10">
-
-                  {reports.map((item, index) => (
-
-                    <div
-                      key={index}
-                      className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 rounded-3xl border border-zinc-200 px-6 py-6 hover:shadow-md transition"
-                    >
-
-                      <div>
-
-                        <h3 className="text-2xl font-bold text-zinc-900">
-
-                          {item.report?.careers?.[0] ||
-                            "Career Report"}
-
-                        </h3>
-
-                        <p className="text-zinc-500 mt-2">
-
-                          {new Date(
-                            item.created_at
-                          ).toLocaleDateString()}
-
-                        </p>
-
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3">
-
-                        {item.report?.strengths
-                          ?.slice(0, 2)
-                          ?.map((strength: string) => (
-
-                            <span
-                              key={strength}
-                              className="px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-medium"
-                            >
-                              {strength}
-                            </span>
-                          ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 export const skillsTest = {
 
-  id: "skills",
+  id: "Skills",
 
   title: "Career Skills Assessment",
 
