@@ -28,14 +28,7 @@ export default function AssessmentsPage() {
 
       const { data, error } = await supabase
         .from("assessments")
-        .select(`
-          *,
-          reports (
-            id,
-            report,
-            created_at
-          )
-        `)
+        .select("*")
         .eq("user_id", user.id)
         .order("created_at", {
           ascending: false,

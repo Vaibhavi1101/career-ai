@@ -160,6 +160,21 @@ export default function ResultsPage() {
         return;
 
       }
+      
+      const { data: existingReport } =
+        await supabase
+          .from("reports")
+          .select("*")
+          .eq("assessment_id", data.id)
+          .maybeSingle();
+
+      if (existingReport) {
+
+        setAiReport(existingReport.report);
+
+        setLoading(false);
+        return;
+      }
 
       setAssessment(data);
 
@@ -204,12 +219,63 @@ export default function ResultsPage() {
             .insert([
               {
                 user_id: user.id,
-
                 assessment_id: data.id,
-
                 report: reportData,
               },
             ]);
+
+          // GET ALL REPORTS
+
+          const { data: allReports } =
+            await supabase
+              .from("reports")
+              .select("report")
+              .eq("user_id", user.id);
+
+          const summaries =
+            allReports
+              ?.map(
+                (r: any) =>
+                  r.report?.personalitySummary
+              )
+              .filter(Boolean) || [];
+
+          // GENERATE OVERALL PROFILE
+
+          const overallResponse =
+            await fetch(
+              "/api/generate-overall-profile",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                },
+
+                body: JSON.stringify({
+                  summaries,
+                }),
+              }
+            );
+
+          const overallData =
+            await overallResponse.json();
+
+          // SAVE TO PROFILE
+
+          const { data: updatedProfile, error: profileError } =
+            await supabase
+              .from("profiles")
+              .update({
+                overall_summary:
+                  overallData.summary,
+              })
+              .eq("id", user.id)
+              .select();
+
+          console.log("PROFILE UPDATE:", updatedProfile);
+          console.log("PROFILE ERROR:", profileError);
         }
 
         setGenerated(true);

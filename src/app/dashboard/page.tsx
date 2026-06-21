@@ -131,8 +131,8 @@ export default function DashboardPage() {
     (r) => r.report?.careerMatches || []
   );
 
-  const allStrengths = reports.flatMap(
-    (r) => r.report?.strengths || []
+  const allTraits = assessments.flatMap(
+    (a) => a.traits || []
   );
 
   const topCareers = getTopItems(
@@ -141,8 +141,8 @@ export default function DashboardPage() {
   );
 
   const topStrengths = getTopItems(
-    allStrengths,
-    6
+    allTraits,
+    8
   );
 
   const domainsExplored =
@@ -170,6 +170,29 @@ export default function DashboardPage() {
                     profileFields.length) *
                     100
                 );
+
+  const topTraits =
+    getTopItems(allTraits, 6);
+
+  const exploredDomains =
+    new Set(
+      assessments
+        .map((a) => a.domain)
+        .filter(Boolean)
+    ).size;
+  
+    const topCareer =
+  latestReport?.careerMatches?.[0] ||
+  latestReport?.careers?.[0] ||
+  "Not Available";
+
+  const cleanSummary =
+  profile?.overall_summary
+    ?.replace(
+      /^overall career profile:?/i,
+      ""
+    )
+    .trim();
 
   return (
 
@@ -361,7 +384,7 @@ export default function DashboardPage() {
                   </h3>
 
                   <p className="text-4xl font-bold text-zinc-900 mt-3">
-                    {reports.length}
+                    {assessments.length}
                   </p>
                 </div>
 
@@ -377,7 +400,7 @@ export default function DashboardPage() {
                   </h3>
 
                   <p className="text-2xl font-bold text-zinc-900 mt-3 leading-snug">
-                    {latestReport?.careers?.[0] || "No Data"}
+                    {latestReport?.careerMatches?.[0] || "No Data"}
                   </p>
                 </div>
 
@@ -417,7 +440,7 @@ export default function DashboardPage() {
 
 
               {/* QUICK ACTIONS */}
-              <div className="mt-12">
+              {/* <div className="mt-12">
 
                 <div className="flex items-center gap-3 text-indigo-600 font-semibold mb-6">
                   <Sparkles className="w-5 h-5" />
@@ -477,7 +500,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
 
               {/*Career Intelligence and Career DNA*/}
@@ -580,13 +603,10 @@ export default function DashboardPage() {
                 </div>
 
                 <p className="text-xl text-zinc-700 leading-relaxed mt-8">
-                  {latestReport?.personalitySummary ||
+                  { cleanSummary ||
                     "Complete assessments to build your AI-generated career profile."}
                 </p>
               </div>
-
-              
-              
 
               
               {/* PROFILE COMPLETION */}
