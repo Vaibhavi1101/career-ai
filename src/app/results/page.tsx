@@ -1,5 +1,5 @@
 "use client";
-
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import Navbar from "@/components/layout/navbar";
@@ -36,6 +36,12 @@ export default function ResultsPage() {
   const [generated, setGenerated] =
     useState(false);
 
+  const searchParams =
+    useSearchParams();
+
+  const reportId =
+    searchParams.get("id");
+
   useEffect(() => {
 
     const fetchAssessment = async () => {
@@ -60,6 +66,50 @@ export default function ResultsPage() {
 
         return;
 
+      }
+
+      // VIEW HISTORICAL REPORT
+      if (reportId) {
+
+        const {
+          data: reportRecord,
+          error: reportError,
+        } = await supabase
+          .from("reports")
+          .select("*")
+          .eq("id", reportId)
+          .single();
+
+        if (
+          reportError ||
+          !reportRecord
+        ) {
+
+          setLoading(false);
+          return;
+        }
+
+        const {
+          data: assessmentData,
+        } = await supabase
+          .from("assessments")
+          .select("*")
+          .eq(
+            "id",
+            reportRecord.assessment_id
+          )
+          .single();
+
+        setAssessment(
+          assessmentData
+        );
+
+        setAiReport(
+          reportRecord.report
+        );
+
+        setLoading(false);
+        return;
       }
 
       if (pendingAssessment) {
@@ -292,7 +342,7 @@ export default function ResultsPage() {
 
     fetchAssessment();
 
-  }, []);
+  }, [reportId]);
 
 
   if (loading) {

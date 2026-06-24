@@ -198,70 +198,10 @@ export default function DashboardPage() {
 
     <>
 
-      <Navbar />
-
 
       <main className="min-h-screen bg-[#f5f5f7]">
 
         <div className="flex">
-
-
-          {/* SIDEBAR */}
-          <aside className="hidden lg:flex flex-col w-72 min-h-screen bg-white border-r border-zinc-200 px-8 py-10 sticky top-0">
-
-            <div>
-
-              <h1 className="text-3xl font-extrabold text-zinc-900">
-                CareerAI
-              </h1>
-
-              <p className="text-zinc-500 mt-2">
-                AI Career Platform
-              </p>
-
-            </div>
-
-
-            <div className="mt-14 space-y-3">
-
-              <button className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl bg-blue-50 text-blue-600 font-semibold">
-
-                <LayoutDashboard className="w-5 h-5" />
-
-                Dashboard
-
-              </button>
-
-
-              <button className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-zinc-600 hover:bg-zinc-100 transition">
-
-                <ClipboardList className="w-5 h-5" />
-
-                Assessments
-
-              </button>
-
-
-              <button className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-zinc-600 hover:bg-zinc-100 transition">
-
-                <User className="w-5 h-5" />
-
-                Profile
-
-              </button>
-
-
-              <button className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-zinc-600 hover:bg-zinc-100 transition">
-
-                <Settings className="w-5 h-5" />
-
-                Settings
-
-              </button>
-
-            </div>
-
-          </aside>
 
 
           {/* MAIN */}

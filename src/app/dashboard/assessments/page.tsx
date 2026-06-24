@@ -13,6 +13,7 @@ import {
 export default function AssessmentsPage() {
   const [loading, setLoading] = useState(true);
   const [assessments, setAssessments] = useState<any[]>([]);
+  const [reports, setReports] = useState<any[]>([]);
 
   useEffect(() => {
     fetchAssessments();
@@ -37,6 +38,16 @@ export default function AssessmentsPage() {
       if (error) throw error;
 
       setAssessments(data || []);
+
+      const {
+        data: reportData,
+      } = await supabase
+        .from("reports")
+        .select("*")
+        .eq("user_id", user.id);
+
+      setReports(reportData || []);
+
     } catch (error) {
       console.error(error);
     } finally {
@@ -110,7 +121,11 @@ export default function AssessmentsPage() {
           {assessments.map((assessment) => {
 
             const report =
-              assessment.reports?.[0];
+              reports.find(
+                (r) =>
+                  r.assessment_id ===
+                  assessment.id
+              );
 
             return (
               <div
@@ -165,7 +180,12 @@ export default function AssessmentsPage() {
 
                     <span>
 
-                      {assessment.traits?.length || 0}
+                      {assessment.traits
+                        ?.slice(0, 3)
+                        .join(" • ")}
+
+                      {assessment.traits?.length > 3 &&
+                        `  + ${assessment.traits.length - 3}`}
                       {" "}
                       Traits Identified
 
@@ -179,7 +199,7 @@ export default function AssessmentsPage() {
 
                   {report ? (
                     <Link
-                      href={`/results?id=${assessment.id}`}
+                      href={`/results?id=${report.id}`}
                       className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:gap-3 transition-all"
                     >
                       View Report
