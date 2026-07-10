@@ -13,6 +13,7 @@ import {
   ClipboardList,
   User,
   Settings,
+  Target,
 } from "lucide-react";
 
 export default function DashboardLayout({
@@ -38,6 +39,16 @@ export default function DashboardLayout({
       label: "Assessments",
       href: "/dashboard/assessments",
       icon: ClipboardList,
+    },
+    {
+      label: "Career Explorer",
+      href: "/dashboard/career-explorer",
+      icon: Target,
+    },
+    {
+      label: "Career Journey",
+      href: "/dashboard/career-journey",
+      icon: Target
     },
     {
       label: "Profile",

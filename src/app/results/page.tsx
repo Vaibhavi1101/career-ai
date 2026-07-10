@@ -324,6 +324,38 @@ export default function ResultsPage() {
               .eq("id", user.id)
               .select();
 
+            const careerResponse = await fetch(
+              "/api/generate-career-recommendations",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  userId: user.id,
+                }),
+              }
+            );
+
+            const careerData = await careerResponse.json();
+
+            const {
+              error: recommendationError,
+            } = await supabase
+              .from("profiles")
+              .update({
+                career_recommendations:
+                  careerData.recommendations,
+              })
+              .eq("id", user.id);
+
+            console.log(
+              "CAREER RECOMMENDATION ERROR:",
+              recommendationError
+            );
+
           console.log("PROFILE UPDATE:", updatedProfile);
           console.log("PROFILE ERROR:", profileError);
         }
